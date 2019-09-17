@@ -3,28 +3,21 @@ version: '3.2'
 services:
   filebeat:
     hostname: filebeat
-# ** Here to build the image, you need to specify your own docker hub account :
-    image: bcoste/filebeat:latest
+    image: bcoste/filebeat:7.3.1
     build:
       context: ./filebeat
-#Deploy is needed if you want to deploy in a Swarm
-    deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
     volumes:
-# needed to persist filebeat tracking data :
+    # needed to persist filebeat tracking data :
      - "filebeat_data:/usr/share/filebeat/data:rw"
-# needed to access all docker logs (read only) :
+    # needed to access all docker logs (read only) :
      - "/var/lib/docker/containers:/usr/share/dockerlogs/data:ro"
-# needed to access additional informations about containers
+    # needed to access additional informations about containers
      - "/var/run/docker.sock:/var/run/docker.sock"
-
   elasticsearch:
     build:
       context: elasticsearch/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 7.3.1
     volumes:
       - type: bind
         source: ./elasticsearch/config/elasticsearch.yml
@@ -41,12 +34,11 @@ services:
       ELASTIC_PASSWORD: pass
     networks:
       - elk
-
   logstash:
     build:
       context: logstash/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 7.3.1
     volumes:
       - type: bind
         source: ./logstash/config/logstash.yml
@@ -65,12 +57,11 @@ services:
       - elk
     depends_on:
       - elasticsearch
-
   kibana:
     build:
       context: kibana/
       args:
-        ELK_VERSION: $ELK_VERSION
+        ELK_VERSION: 7.3.1
     volumes:
       - type: bind
         source: ./kibana/config/kibana.yml
